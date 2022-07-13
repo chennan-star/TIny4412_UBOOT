@@ -340,7 +340,7 @@ led_on_2:
        bic r1, r1, #0x02
        str r1, [r0]
 
-       bx lr                                   @ 函数返回
+       b led_on_2                                   @ 函数返回
 
        .globl led_on_3
 led_on_3:
@@ -360,50 +360,6 @@ led_on_4:
 
        bx lr                                   @ 函数返回
 
-      .globl uart_asm_init
-uart_asm_init:
-
-	/* set GPIO to enable UART */
-	@ GPIO setting for UART for UART0/1/2/3
-	ldr	r0, =0x11400000
-	ldr	r1, =0x22222222
-	str	r1, [r0]
-	ldr	r0, =0x11400020
-	ldr	r1, =0x222222
-	str	r1, [r0]
-
-	ldr	r0, =0x10030000
-	ldr	r1, =0               /*0<<24*/
-	ldr	r2, =0x0C250
-	str	r1, [r0, r2]
-	ldr	r1, =0x700000
-	ldr	r2, =0x0C550
-	str	r1, [r0, r2]
-
-	ldr	r0, =13800000
-	ldr	r1, =0x111
-	str	r1, [r0, #0x08]
-
-	mov	r1, #0x3
-	str	r1, [r0, #0X00]
-
-	ldr	r1, =0x3c5
-	str	r1, [r0, #0X04]
-
-	ldr	r1, =0x35
-	str	r1, [r0, #0x28]
-
-	ldr	r1, =0x04
-	str	r1, [r0, #0x2C]
-
-	ldr	r1, =0x4f4f4f4f
-	str	r1, [r0, #0x20]		@'O'
-
-	mov	pc, lr
-
-
-
-
        .globl bsp_delay
 bsp_delay:
        ldr r0, =0x8FFFFF
@@ -414,7 +370,6 @@ loop:
        bne loop 
        
        bx lr
-
 
 
                

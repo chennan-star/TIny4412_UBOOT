@@ -18,12 +18,13 @@
 
 /* DEBUG UART */
 
-#define CONFIG_DEBUG_UART                      1       
-#define CONFIG_SPL_SERIAL_SUPPORT      1
-#define CONFIG_SPL_GPIO_SUPPORT                1
-#define CONFIG_DEBUG_UART_S5P          1
-#define CONFIG_DEBUG_UART_BASE         0x13800000
-#define CONFIG_DEBUG_UART_CLOCK                (100000000)
+        /* SPL DEBUG */
+        #define CONFIG_DEBUG_UART           1 
+        #define CONFIG_SPL_SERIAL_SUPPORT   1
+        #define CONFIG_SPL_GPIO_SUPPORT     1
+        #define CONFIG_DEBUG_UART_S5P       1
+        #define CONFIG_DEBUG_UART_BASE      0x13800000
+        #define CONFIG_DEBUG_UART_CLOCK     (100000000)
 
 
 
@@ -45,7 +46,7 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_TINY4412
 
 /* select serial console configuration */
-#define CONFIG_SERIAL0
+#define CONFIG_SERIAL0                  1
 #define CONFIG_BAUDRATE			115200
 
 /* Console configuration */

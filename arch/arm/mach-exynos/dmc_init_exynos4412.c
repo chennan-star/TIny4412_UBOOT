@@ -26,7 +26,8 @@
 #include <config.h>
 #include <asm/arch/dmc.h>
 #include "common_setup.h"
-#include "exynos4_setup.h"
+#include "exynos4412_setup.h"
+#include <debug_uart.h>
 
 struct mem_timings mem = {
 	.direct_cmd_msr = {
@@ -124,6 +125,10 @@ static void dmc_init(struct exynos4_dmc *dmc)
 	writel(mem.memconfig0, &dmc->memconfig0);
 	writel(mem.memconfig1, &dmc->memconfig1);
 
+#ifdef CONFIG_TINY4412
+       writel(0x8000001f, &dmc->ivcontrol);
+#endif 
+
 	/* Config Precharge Policy */
 	writel(mem.prechconfig, &dmc->prechconfig);
 	/*
@@ -175,39 +180,106 @@ void mem_ctrl_init(int reset)
 	 * 0: full_sync
 	 */
 	writel(1, ASYNC_CONFIG);
-#ifdef CONFIG_ORIGEN
-	/* Interleave: 2Bit, Interleave_bit1: 0x15, Interleave_bit0: 0x7 */
-	writel(APB_SFR_INTERLEAVE_CONF_VAL, EXYNOS4_MIU_BASE +
-		APB_SFR_INTERLEAVE_CONF_OFFSET);
-	/* Update MIU Configuration */
-	writel(APB_SFR_ARBRITATION_CONF_VAL, EXYNOS4_MIU_BASE +
-		APB_SFR_ARBRITATION_CONF_OFFSET);
-#else
-	writel(APB_SFR_INTERLEAVE_CONF_VAL, EXYNOS4_MIU_BASE +
-		APB_SFR_INTERLEAVE_CONF_OFFSET);
-	writel(INTERLEAVE_ADDR_MAP_START_ADDR, EXYNOS4_MIU_BASE +
-		ABP_SFR_INTERLEAVE_ADDRMAP_START_OFFSET);
-	writel(INTERLEAVE_ADDR_MAP_END_ADDR, EXYNOS4_MIU_BASE +
-		ABP_SFR_INTERLEAVE_ADDRMAP_END_OFFSET);
-	writel(INTERLEAVE_ADDR_MAP_EN, EXYNOS4_MIU_BASE +
-		ABP_SFR_SLV_ADDRMAP_CONF_OFFSET);
-#ifdef CONFIG_MIU_LINEAR
-	writel(SLAVE0_SINGLE_ADDR_MAP_START_ADDR, EXYNOS4_MIU_BASE +
-		ABP_SFR_SLV0_SINGLE_ADDRMAP_START_OFFSET);
-	writel(SLAVE0_SINGLE_ADDR_MAP_END_ADDR, EXYNOS4_MIU_BASE +
-		ABP_SFR_SLV0_SINGLE_ADDRMAP_END_OFFSET);
-	writel(SLAVE1_SINGLE_ADDR_MAP_START_ADDR, EXYNOS4_MIU_BASE +
-		ABP_SFR_SLV1_SINGLE_ADDRMAP_START_OFFSET);
-	writel(SLAVE1_SINGLE_ADDR_MAP_END_ADDR, EXYNOS4_MIU_BASE +
-		ABP_SFR_SLV1_SINGLE_ADDRMAP_END_OFFSET);
-	writel(APB_SFR_SLV_ADDR_MAP_CONF_VAL, EXYNOS4_MIU_BASE +
-		ABP_SFR_SLV_ADDRMAP_CONF_OFFSET);
-#endif
+#ifndef CONFIG_TINY4412        
+       #ifdef CONFIG_ORIGEN
+               /* Interleave: 2Bit, Interleave_bit1: 0x15, Interleave_bit0: 0x7 */
+               writel(APB_SFR_INTERLEAVE_CONF_VAL, EXYNOS4_MIU_BASE +
+                       APB_SFR_INTERLEAVE_CONF_OFFSET);
+               /* Update MIU Configuration */
+               writel(APB_SFR_ARBRITATION_CONF_VAL, EXYNOS4_MIU_BASE +
+                       APB_SFR_ARBRITATION_CONF_OFFSET);
+       #else
+               writel(APB_SFR_INTERLEAVE_CONF_VAL, EXYNOS4_MIU_BASE +
+                       APB_SFR_INTERLEAVE_CONF_OFFSET);
+               writel(INTERLEAVE_ADDR_MAP_START_ADDR, EXYNOS4_MIU_BASE +
+                       ABP_SFR_INTERLEAVE_ADDRMAP_START_OFFSET);
+               writel(INTERLEAVE_ADDR_MAP_END_ADDR, EXYNOS4_MIU_BASE +
+                       ABP_SFR_INTERLEAVE_ADDRMAP_END_OFFSET);
+               writel(INTERLEAVE_ADDR_MAP_EN, EXYNOS4_MIU_BASE +
+                       ABP_SFR_SLV_ADDRMAP_CONF_OFFSET);       
+               #ifdef CONFIG_MIU_LINEAR
+                       writel(SLAVE0_SINGLE_ADDR_MAP_START_ADDR, EXYNOS4_MIU_BASE +
+                               ABP_SFR_SLV0_SINGLE_ADDRMAP_START_OFFSET);
+                       writel(SLAVE0_SINGLE_ADDR_MAP_END_ADDR, EXYNOS4_MIU_BASE 
+                               ABP_SFR_SLV0_SINGLE_ADDRMAP_END_OFFSET);
+                       writel(SLAVE1_SINGLE_ADDR_MAP_START_ADDR, EXYNOS4_MIU_BASE +
+                               ABP_SFR_SLV1_SINGLE_ADDRMAP_START_OFFSET);
+                       writel(SLAVE1_SINGLE_ADDR_MAP_END_ADDR, EXYNOS4_MIU_BASE 
+                               ABP_SFR_SLV1_SINGLE_ADDRMAP_END_OFFSET);
+                       writel(APB_SFR_SLV_ADDR_MAP_CONF_VAL, EXYNOS4_MIU_BASE +
+                               ABP_SFR_SLV_ADDRMAP_CONF_OFFSET);
+               #endif
+       #endif
+
 #endif
 	/* DREX0 */
+       
+       printascii("[SPL] DDR3 SDRAM配置：\n");
+       printascii("timingref   ");  printhex8(mem.timingref);          printascii("\n");
+       printascii("timingrow   ");  printhex8(mem.timingrow);          printascii("\n");
+       printascii("timingdata  ");  printhex8(mem.timingdata);         printascii("\n");
+       printascii("timingpower ");  printhex8(mem.timingpower);        printascii("\n");
+       printascii("zqcontrol   ");  printhex8(mem.zqcontrol);          printascii("\n");
+       printascii("control0    ");  printhex8(mem.control0);           printascii("\n");
+       printascii("control1    ");  printhex8(mem.control1);           printascii("\n");
+       printascii("control2    ");  printhex8(mem.control2);           printascii("\n");
+       printascii("concontrol  ");  printhex8(mem.concontrol);         printascii("\n");
+       printascii("prechconfig ");  printhex8(mem.prechconfig);        printascii("\n");
+       printascii("memcontrol  ");  printhex8(mem.memcontrol);         printascii("\n");
+       printascii("memconfig0  ");  printhex8(mem.memconfig0);         printascii("\n");
+       printascii("memconfig1  ");  printhex8(mem.memconfig1);         printascii("\n");
+       printascii("dll_resync  ");  printhex8(mem.dll_resync);         printascii("\n");
+       printascii("dll_on      ");  printhex8(mem.dll_on);         printascii("\n");       
+
+       /* DMC0 */
+
 	dmc = (struct exynos4_dmc *)samsung_get_base_dmc_ctrl();
 	dmc_init(dmc);
+       /* DMC1 */
 	dmc = (struct exynos4_dmc *)(samsung_get_base_dmc_ctrl()
 					+ DMC_OFFSET);
 	dmc_init(dmc);
+       
+       {
+       printascii("[SPL] DDR3 SDRAM测试：\n");
+       
+       void Test_SDRAM(unsigned long addr, unsigned long value);
+       Test_SDRAM(0x40000000, 0x12121212);
+       Test_SDRAM(0x40000004, 0x12121213);
+       Test_SDRAM(0x40000008, 0x12121214);
+       Test_SDRAM(0x4000000C, 0x12121215);
+       Test_SDRAM(0x40000010, 0x12121216);
+
+       Test_SDRAM(0x41000000, 0x23232325);
+       Test_SDRAM(0x42000000, 0x23232326);
+               
+       Test_SDRAM(0x42345530, 0x23232323);
+       Test_SDRAM(0x42345534, 0x23232324);
+       Test_SDRAM(0x42345538, 0x23232325);
+       Test_SDRAM(0x4234553C, 0x23232326);
+       Test_SDRAM(0x50000000, 0x34343434);
+       Test_SDRAM(0x58494940, 0x45454545);
+       Test_SDRAM(0x60000008, 0x56565656);
+       Test_SDRAM(0x6FFFFFFC, 0x67676767);
+       Test_SDRAM(0x70000000, 0x78787878);
+       Test_SDRAM(0x7FFFFFFC, 0x89898989);
+       
+       printascii("测试结束\n");
+       }      
 }
+
+void Test_SDRAM(unsigned long addr, unsigned long value)
+{
+       
+       printascii("写入地址 = ");
+       printhex8(addr);
+       
+       printascii("  写入值 = ");
+       printhex8(value);
+       writel(value, addr);
+       
+       printascii("  读取值 = ");
+       printhex8(readl(addr));
+       printascii("\n");
+}
+

@@ -16,15 +16,15 @@
 
        chosen {
                stdout-path = "serial0";
-	};
+};
 
        aliases {
                serial0 = "/serial@13800000";
                console = "/serial@13800000";
-	};
+};
 
        serial0:serial@13810000 {
-		status = "okay";
-	};
+status = "okay";
+};
 
 };
