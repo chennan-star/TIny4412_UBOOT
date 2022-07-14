@@ -805,6 +805,7 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return cp->cmd(cmdtp, flag, argc, argv);
 }
 
+
 U_BOOT_CMD(
 	mmc, 29, 1, do_mmcops,
 	"MMC sub system",
@@ -847,9 +848,12 @@ U_BOOT_CMD(
 #endif
 	);
 
+
 /* Old command kept for compatibility. Same as 'mmc info' */
+
 U_BOOT_CMD(
 	mmcinfo, 1, 0, do_mmcinfo,
 	"display MMC info",
 	"- display info of the current MMC device"
 );
+

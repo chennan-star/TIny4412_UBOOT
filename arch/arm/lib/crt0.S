@@ -184,7 +184,7 @@ clbss_l:cmp	r0, r1			/* while not at end of BSS */
 	bl coloured_LED_init
 	bl red_led_on
         bl led_off_all
-        bl led_on_1
+        bl led_on_2
 #endif
 
 	/* call board_init_r(gd_t *id, ulong dest_addr) */

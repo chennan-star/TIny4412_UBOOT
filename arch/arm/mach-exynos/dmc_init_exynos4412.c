@@ -213,7 +213,8 @@ void mem_ctrl_init(int reset)
 
 #endif
 	/* DREX0 */
-       
+
+#ifdef CONFIG_DEBUG_UART    
        printascii("[SPL] DDR3 SDRAM配置：\n");
        printascii("timingref   ");  printhex8(mem.timingref);          printascii("\n");
        printascii("timingrow   ");  printhex8(mem.timingrow);          printascii("\n");
@@ -230,17 +231,17 @@ void mem_ctrl_init(int reset)
        printascii("memconfig1  ");  printhex8(mem.memconfig1);         printascii("\n");
        printascii("dll_resync  ");  printhex8(mem.dll_resync);         printascii("\n");
        printascii("dll_on      ");  printhex8(mem.dll_on);         printascii("\n");       
+#endif
 
        /* DMC0 */
 
 	dmc = (struct exynos4_dmc *)samsung_get_base_dmc_ctrl();
 	dmc_init(dmc);
        /* DMC1 */
-	dmc = (struct exynos4_dmc *)(samsung_get_base_dmc_ctrl()
-					+ DMC_OFFSET);
+	dmc = (struct exynos4_dmc *)(samsung_get_base_dmc_ctrl()+ DMC_OFFSET);
 	dmc_init(dmc);
-       
-       {
+#ifdef CONFIG_DEBUG_UART        
+       {  
        printascii("[SPL] DDR3 SDRAM测试：\n");
        
        void Test_SDRAM(unsigned long addr, unsigned long value);
@@ -266,6 +267,7 @@ void mem_ctrl_init(int reset)
        
        printascii("测试结束\n");
        }      
+#endif
 }
 
 void Test_SDRAM(unsigned long addr, unsigned long value)

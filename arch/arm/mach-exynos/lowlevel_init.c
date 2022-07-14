@@ -35,7 +35,8 @@
 #include <asm/arch/system.h>
 #include <asm/armv7.h>
 #include "common_setup.h"
-#include "exynos5_setup.h"
+/*#include "exynos5_setup.h"*/
+#include "exynos4_setup.h"
 
 /* These are the things we can do during low-level init */
 enum {
@@ -223,10 +224,17 @@ __asm__("bl led_off_all\n"
 
 		system_clock_init();
 
+
 #ifdef CONFIG_DEBUG_UART
 #if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_SERIAL_SUPPORT)) || \
     !defined(CONFIG_SPL_BUILD)
-		
+__asm__(".globl	system_clock_return\n"
+        "system_clock_return:\n");
+
+__asm__("bl led_off_all\n"
+        "bl led_on_3\n");
+
+
                 exynos_pinmux_config(PERIPH_ID_UART0, PINMUX_FLAG_NONE);
 
                 debug_uart_init();
@@ -237,7 +245,7 @@ __asm__("bl led_off_all\n"
 #endif
 #endif
 		mem_ctrl_init(actions & DO_MEM_RESET);
-		tzpc_init();
+		/*tzpc_init();*/
 	}
 
 	return actions & DO_WAKEUP;

@@ -1,9 +1,10 @@
 #!/bin/bash
 
 
-EXEC="sd_fusing.sh"
+#EXEC="sd_fuse.sh"
+EXEC="fast_fuse.sh"
 
-SD_PATH="/dev/sdb"
+SD_PATH="/dev/sda"
 
 FUSE_PATH="./${EXEC}"
 
